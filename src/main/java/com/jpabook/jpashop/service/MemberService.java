@@ -5,5 +5,6 @@ import com.jpabook.jpashop.domain.Member;
 
 public interface MemberService {
     public Member saveMember(Member member);
+    public Member saveMember(MemberJoinDto memberJoinDto);
 
 }
