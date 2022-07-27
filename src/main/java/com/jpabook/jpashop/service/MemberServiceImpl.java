@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberServiceImpl implements MemberService{
 
-    private MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
     public MemberServiceImpl(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;

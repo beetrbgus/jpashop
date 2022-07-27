@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
     private final MemberService memberService;
 
-    @PostMapping("/")
+    @PostMapping("/v1")
     public MemberJoinDto saveMemberV1(@RequestBody @Validated Member member) {
         Member savedMember = memberService.saveMember(member);
         MemberJoinDto joinDto = MemberJoinDto.builder()
@@ -24,7 +24,7 @@ public class MemberController {
         return joinDto;
     }
 
-    @PostMapping("/")
+    @PostMapping("/v2")
     public MemberJoinDto saveMemberV2(@RequestBody @Validated MemberJoinDto requestDto) {
         Member savedMember = memberService.saveMember(requestDto);
         MemberJoinDto joinDto = MemberJoinDto.builder()
