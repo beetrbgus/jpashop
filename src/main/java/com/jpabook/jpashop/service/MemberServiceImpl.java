@@ -17,4 +17,13 @@ public class MemberServiceImpl implements MemberService{
     public Member saveMember(Member member) {
         return memberRepository.save(member);
     }
+
+    @Override
+    public Member saveMember(MemberJoinDto memberJoinDto) {
+        Member member = Member.builder()
+                .username(memberJoinDto.getUsername())
+                .build();
+
+        return memberRepository.save(member);
+    }
 }
