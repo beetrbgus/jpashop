@@ -13,12 +13,8 @@ public class MemberServiceImpl implements MemberService{
     public MemberServiceImpl(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
-
-    public Member saveMember(MemberJoinDto memberJoinDto) {
-        Member member = Member.builder()
-                .username(memberJoinDto.getUsername())
-                .build();
-
+    @Override
+    public Member saveMember(Member member) {
         return memberRepository.save(member);
     }
 }
