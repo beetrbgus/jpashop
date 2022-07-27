@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 
 import javax.persistence.AttributeOverride;
@@ -27,20 +28,20 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 @Getter
-@AttributeOverrides(
-        @AttributeOverride(name = "order_Date",column = @Column(name = "created_dt")))
 public class Member extends BasicEntityColumn {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
+
+    @NonNull
     private String username;
 
     @Embedded
     private Address address;
 
-    @OneToMany(mappedBy = "member") // mappedBy = 읽기 전용이 됨
-    private List<Order> orders = new ArrayList<>();
-
     private OrderStatus status;
+
+    /*@OneToMany(mappedBy = "member", targetEntity = Order.class)
+    private List<Order> orders = new ArrayList<>();*/
 }
