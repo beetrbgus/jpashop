@@ -35,7 +35,7 @@ public class Member extends BasicEntityColumn {
     private Long id;
 
     @NonNull
-    private String username;
+    private String userName;
 
     @Embedded
     private Address address;
