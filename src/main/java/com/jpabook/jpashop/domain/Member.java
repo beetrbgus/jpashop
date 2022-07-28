@@ -42,6 +42,6 @@ public class Member extends BasicEntityColumn {
 
     private OrderStatus status;
 
-    /*@OneToMany(mappedBy = "member", targetEntity = Order.class)
-    private List<Order> orders = new ArrayList<>();*/
+    @OneToMany(mappedBy = "member")
+    private List<Order> orders = new ArrayList<>();
 }

@@ -7,6 +7,7 @@ import com.jpabook.jpashop.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -50,5 +51,10 @@ public class MemberServiceImpl implements MemberService{
             member = memberOptional.get();
         }
         return member;
+    }
+
+    @Override
+    public List<Member> findAll() {
+        return memberRepository.findAll();
     }
 }
