@@ -46,9 +46,11 @@ public class MemberController {
 
     @PostMapping("/v1/members")
     public MemberJoinDto saveMemberV1(@RequestBody @Validated Member member) {
-        Member savedMember = memberService.saveMember(member);
+        Long savedMemberId = memberService.saveMember(member);
+        Member findMember = memberService.findOne(savedMemberId);
+
         MemberJoinDto joinDto = MemberJoinDto.builder()
-                .username(savedMember.getUserName())
+                .username(findMember.getUserName())
                 .build();;
         return joinDto;
     }
