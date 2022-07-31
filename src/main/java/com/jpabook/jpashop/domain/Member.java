@@ -35,13 +35,13 @@ public class Member extends BasicEntityColumn {
     private Long id;
 
     @NonNull
-    private String username;
+    private String userName;
 
     @Embedded
     private Address address;
 
     private OrderStatus status;
 
-    /*@OneToMany(mappedBy = "member", targetEntity = Order.class)
-    private List<Order> orders = new ArrayList<>();*/
+    @OneToMany(mappedBy = "member")
+    private List<Order> orders = new ArrayList<>();
 }

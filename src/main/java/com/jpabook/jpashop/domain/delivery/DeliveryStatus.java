@@ -1,7 +1,7 @@
 package com.jpabook.jpashop.domain.delivery;
 
 public enum DeliveryStatus {
-    READY("준비 중"), COMP("배송 완료");
+    READY("READY"), COMP("DELIVERYOK"), CANCEL("ORDERCANCEL");
 
     private final String msg;
 
