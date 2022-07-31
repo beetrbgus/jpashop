@@ -7,7 +7,7 @@ import com.jpabook.jpashop.dto.UpdateMemberRequestDto;
 import java.util.List;
 
 public interface MemberService {
-    Member saveMember(Member member);
+    Long saveMember(Member member);
     Member saveMember(MemberJoinDto memberJoinDto);
 
     void updateMember(Long id, UpdateMemberRequestDto requestDto);
