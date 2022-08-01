@@ -33,10 +33,8 @@ public abstract class Item {
     private List<Category> categories = new ArrayList<>();
 
     //비즈니스 로직
-
     /**
      * 재고 stock 증가
-     * @author Boki
      */
     public void addStock(int quantity) {
         this.stockQuantity += quantity;
@@ -44,7 +42,6 @@ public abstract class Item {
 
     /**
      * 재고 stock 감소
-     * @author Boki
      */
     public void removeStock(int quantity) {
         int restStock = this.stockQuantity - quantity;
