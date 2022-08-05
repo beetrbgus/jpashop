@@ -81,7 +81,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 주문 생성
         // Cascade 로 OrderItem 과 Delivery 가 자동 저장
-        // LifeCycle 이 없는 경우에 가능
+        // Order만 Delivery 사용, Order만 OrderItem만 사용. Persist하는 LifeCycle이 똑같아서 사용
         Order order = Order.createOrder(memberOptional.get(), delivery, orderItem);
         
         // 주문 저장
