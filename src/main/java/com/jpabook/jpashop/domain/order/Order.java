@@ -38,7 +38,7 @@ public class Order extends BasicEntityColumn {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -81,10 +81,11 @@ public class Order extends BasicEntityColumn {
      * 주문 취소
      */
     public void cancel() {
+        this.setStatus(OrderStatus.CANCEL);
+
         if(delivery.getStatus().equals(DeliveryStatus.COMP)) {
             throw new IllegalStateException("이미 배송 완료 된 상품은 취소가 불가능합니다.");
         }
-        this.setStatus(OrderStatus.CANCEL);
 
         for(OrderItem orderItem : this.orderItems) {
             orderItem.cancel();
