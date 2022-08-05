@@ -1,7 +1,7 @@
 package com.jpabook.jpashop.domain.order;
 
 public enum OrderStatus {
-    ORDER("주문"),DELEIVERY_OK("배달 완료") ,CANCEL("취소");
+    ORDER("ORDERED"),DELEIVERY_OK("DELIEVERYOK") ,CANCEL("ORDERCANCEL");
 
     private final String msg;
 
