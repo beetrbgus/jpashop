@@ -3,9 +3,11 @@ package com.jpabook.jpashop.domain.order;
 import com.jpabook.jpashop.domain.BasicEntityColumn;
 import com.jpabook.jpashop.domain.Member;
 import com.jpabook.jpashop.domain.delivery.Delivery;
+import com.jpabook.jpashop.domain.delivery.DeliveryStatus;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -36,10 +38,10 @@ public class Order extends BasicEntityColumn {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "orders")
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
 
@@ -51,7 +53,7 @@ public class Order extends BasicEntityColumn {
         this.member = member;
         member.getOrders().add(this);
     }
-    public void setOrderItem(OrderItem orderItem) {
+    public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
     }
@@ -59,5 +61,44 @@ public class Order extends BasicEntityColumn {
     public void setDelivery(Delivery delivery) {
         this.delivery = delivery;
         delivery.setOrder(this);
+    }
+
+    // 주문 생성 메서드
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems) {
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+
+        for(OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
+        order.setStatus(OrderStatus.ORDER);
+        return order;
+    }
+
+    // 비지니스 로직
+    /**
+     * 주문 취소
+     */
+    public void cancel() {
+        if(delivery.getStatus().equals(DeliveryStatus.COMP)) {
+            throw new IllegalStateException("이미 배송 완료 된 상품은 취소가 불가능합니다.");
+        }
+        this.setStatus(OrderStatus.CANCEL);
+
+        for(OrderItem orderItem : this.orderItems) {
+            orderItem.cancel();
+        }
+    }
+    // 조회 로직
+
+    /**
+     * 전체 주문 가격 조회
+     * @return
+     */
+    public int getTotalPrice() {
+        return orderItems.stream()
+                .mapToInt(OrderItem::getTotalPrice)
+                .sum();
     }
 }
