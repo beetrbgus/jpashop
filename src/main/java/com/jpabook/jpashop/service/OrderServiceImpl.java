@@ -3,21 +3,33 @@ package com.jpabook.jpashop.service;
 import com.jpabook.jpashop.domain.Member;
 import com.jpabook.jpashop.domain.delivery.Delivery;
 import com.jpabook.jpashop.domain.delivery.DeliveryStatus;
+import com.jpabook.jpashop.domain.item.Item;
 import com.jpabook.jpashop.domain.order.Order;
+import com.jpabook.jpashop.domain.order.OrderItem;
+import com.jpabook.jpashop.exception.NotFoundMember;
+import com.jpabook.jpashop.repository.ItemRepository;
+import com.jpabook.jpashop.repository.MemberRepository;
 import com.jpabook.jpashop.repository.OrderRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OrderServiceImpl implements OrderService {
 
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
 
-    private DeliveryService deliveryService;
+    private final DeliveryService deliveryService;
+
+    private final MemberRepository memberRepository;
+
+    private final ItemRepository itemRepository;
     @Override
     public List<Order> getOrderList() {
         List<Order> orderList = orderRepository.findAll();
@@ -40,5 +52,42 @@ public class OrderServiceImpl implements OrderService {
         saveOrder.setDelivery(savedDelivery);
         // JPA 변경감지로 저장
         return saveOrder;
+    }
+
+    /**
+     * 주문 비즈니스 로직
+     * @param memberId
+     * @param itemId
+     * @param count
+     * @return
+     */
+    public Long order(Long memberId, Long itemId, int count) {
+        // 엔티티 조회
+        Optional<Member> memberOptional = memberRepository.findById(memberId);
+        Optional<Item> itemOptional = itemRepository.findById(itemId);
+
+        if(!memberOptional.isPresent()){
+            throw new NotFoundMember("회원을 찾을 수 없습니다.");
+        }
+        if(!itemOptional.isPresent()){
+            throw new NotFoundMember("상품을 찾을 수 없습니다.");
+        }
+        // 배송정보 설정
+        Delivery delivery = new Delivery();
+        delivery.setAddress(memberOptional.get().getAddress());
+
+        // 주문 상품 생성
+        OrderItem orderItem = OrderItem.createOrderItem(itemOptional.get(), itemOptional.get().getPrice(), count);
+
+        // 주문 생성
+        // Cascade 로 OrderItem 과 Delivery 가 자동 저장
+        // LifeCycle 이 없는 경우에 가능
+        Order order = Order.createOrder(memberOptional.get(), delivery, orderItem);
+        
+        // 주문 저장
+        orderRepository.save(order);
+
+        return order.getId();
+
     }
 }

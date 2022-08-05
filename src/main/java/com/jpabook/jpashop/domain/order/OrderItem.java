@@ -35,6 +35,7 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    //생성 메서드
     public static OrderItem createOrderItem(Item item, int orderPrice, int count){
         OrderItem orderItem = new OrderItem();
         orderItem.setItem(item);
@@ -43,5 +44,20 @@ public class OrderItem {
 
         item.removeStock(count);
         return orderItem;
+    }
+
+
+    //재고 수량 원상 복구
+    public void cancel() {
+        getItem().addStock(count);
+    }
+    //조회 로직
+
+    /**
+     * 주문상품 전체 가격 조회
+     * @return
+     */
+    public int getTotalPrice() {
+        return getCount() * getOrderPrice();
     }
 }
