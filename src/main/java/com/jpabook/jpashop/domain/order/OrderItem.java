@@ -1,7 +1,9 @@
 package com.jpabook.jpashop.domain.order;
 
 import com.jpabook.jpashop.domain.item.Item;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -16,6 +18,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "order_item")
 @Setter @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // 제약으로 유지보수 쉬워 짐
 public class OrderItem {
     @Id
     @GeneratedValue
@@ -34,7 +37,8 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
-
+//    객체를 만드는 방법을 통일 시키기 위해서 제약을 걺 = @NoArgsConstructor(access = AccessLevel.PROTECTED)
+//    protected OrderItem(){}
     //생성 메서드
     public static OrderItem createOrderItem(Item item, int orderPrice, int count){
         OrderItem orderItem = new OrderItem();
