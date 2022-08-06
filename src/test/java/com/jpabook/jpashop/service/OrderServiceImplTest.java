@@ -66,7 +66,9 @@ public class OrderServiceImplTest {
         //then
         Optional<Order> orderOptional = orderRepository.findById(orderId);
 
-        assertEquals(OrderStatus.CANCEL,orderOptional.get().getStatus());
+        assertEquals(OrderStatus.CANCEL,orderOptional.get().getStatus()); // 주문 취소 상태여야 함
+        assertEquals(10,book.getStockQuantity()); // 주문 취소시 상품은 재고가 증가해야 함.
+
 
     }
     @Test

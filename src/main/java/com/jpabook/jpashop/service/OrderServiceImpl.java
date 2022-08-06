@@ -6,16 +6,26 @@ import com.jpabook.jpashop.domain.delivery.DeliveryStatus;
 import com.jpabook.jpashop.domain.item.Item;
 import com.jpabook.jpashop.domain.order.Order;
 import com.jpabook.jpashop.domain.order.OrderItem;
+import com.jpabook.jpashop.dto.OrderSearch;
 import com.jpabook.jpashop.exception.NotFoundItem;
 import com.jpabook.jpashop.exception.NotFoundMember;
 import com.jpabook.jpashop.repository.ItemRepository;
 import com.jpabook.jpashop.repository.MemberRepository;
 import com.jpabook.jpashop.repository.OrderRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +41,9 @@ public class OrderServiceImpl implements OrderService {
     private final MemberRepository memberRepository;
 
     private final ItemRepository itemRepository;
+
+    private final EntityManager entityManager;
+
     @Override
     public List<Order> getOrderList() {
         List<Order> orderList = orderRepository.findAll();
@@ -115,13 +128,113 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
 
     }
-    // 검색
-/*
+    // Spring Data JPA 사용 안한 동적 쿼리 검색
     @Override
     public List<Order> findOrders(OrderSearch orderSearch){
-        return orderRepository.findAll(orderSearch);
-    }
-*/
+        String jpql = "select o from Order o join o.member m";
 
+        boolean isFirstCondition = true;
+        // 주문 상태 검색
+        if(orderSearch.getOrderStatus() != null) {
+            if(isFirstCondition) {
+                jpql += "where";
+                isFirstCondition = false;
+            }else {
+                jpql += " and";
+            }
+            jpql += " o.status = :status";
+        }
+        // 회원 이름 검색
+        if(StringUtils.hasText(orderSearch.getMemberName())) {
+            if(isFirstCondition) {
+                jpql += "where";
+                isFirstCondition = false;
+            }else {
+                jpql += " and";
+            }
+            jpql += " m.name like :name";
+        }
+        TypedQuery<Order> query = entityManager.createQuery(jpql, Order.class)
+                .setMaxResults(1000);
+
+        if(orderSearch.getOrderStatus() != null) {
+            query = query.setParameter("status",orderSearch.getOrderStatus());
+        }
+        // 회원 이름 검색
+        if(StringUtils.hasText(orderSearch.getMemberName())) {
+            query = query.setParameter("name",orderSearch.getMemberName());
+        }
+
+        return query.getResultList();
+    }
+
+    /**
+     * JPA Criteria - JPA 표준 스펙
+     * ( 김영한님은 ) 실무에서 안 씀 - 너무 복잡하기 때문
+     * @param orderSearch
+     * @return
+     */
+    public List<Order> findAllByCriteria(OrderSearch orderSearch) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        // 기준 테이블
+        Root<Order> root = cq.from(Order.class);
+        
+        // Join 테이블
+        Join<Object, Object> member = root.join("member", JoinType.INNER);
+
+        // Predicate = 조건
+        List<Predicate> criteria =  new ArrayList<>();
+        
+        // 주문 상태 검색
+        if(orderSearch.getOrderStatus() != null) {
+            Predicate status = cb.equal(root.get("status"), orderSearch.getOrderStatus());
+            criteria.add(status);
+        }
+
+        // 회원 이름 검색
+        if(StringUtils.hasText(orderSearch.getMemberName())) {
+            Predicate status = cb.equal(member.get("name"), orderSearch.getMemberName());
+            criteria.add(status);
+        }
+        cq.where(cb.and(criteria.toArray(new Predicate[criteria.size()])));
+        TypedQuery<Order> query = entityManager.createQuery(cq).setMaxResults(1000);
+
+        // 치명적인 단점 : 유지 보수성이 0임.
+        
+        return query.getResultList();
+    }
+
+    /**
+     * QueryDsl 로 만드는 동적 쿼리 ( 강의에서 다루지 않음 )
+     * @param orderSearch
+     * @return
+     */
+/*    public List<Order> findAllByQueryDsl(OrderSearch orderSearch) {
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+
+        return query
+                .select(order)
+                .from(order)
+                .join(order.member, member)
+                .where(statusEq(orderSearch.getOrderStatus())
+                        , nameLike(orderSearch.getMemberName()))
+                .limit(1000)
+                .fetch();
+    }
+
+    private BooleanExpression statusEq(OrderStatus statusCond) {
+        if(statusCond == null) {
+            return null;
+        }
+        return order.status.eq(statusCond);
+    }
+    private BooleanExpression nameLike(String nameCond) {
+        if(!StringUtils.hasText(nameCond)) {
+            return null;
+        }
+        return member.name.like(nameCond);
+    }*/
 
 }
