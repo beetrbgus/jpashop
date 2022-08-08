@@ -16,12 +16,4 @@ import java.util.List;
 public class OrderController {
     private OrderService orderService;
 
-    @GetMapping("/order/list")
-    public CommonResponse<List<Order>> getOrderList() {
-        List<Order> orderList = orderService.getOrderList();
-
-        return CommonResponse.<List<Order>>builder()
-                .data(orderList).build();
-    }
-
 }
